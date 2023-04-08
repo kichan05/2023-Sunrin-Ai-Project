@@ -1,6 +1,6 @@
 import glob
 
-fieldImageFile = glob.glob("./data/image dataset 1/*")
+fieldImageFile = glob.glob("data/0/*")
 
 for idx, fieldFile in enumerate(fieldImageFile):
     field = fieldFile.split("\\")[-1]

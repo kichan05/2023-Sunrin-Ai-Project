@@ -2,47 +2,82 @@ import cv2
 import mediapipe as mp
 import glob
 
-imageFile = glob.glob("./data/image dataset 1/*")
+import numpy as np
+import pandas as pd
+
+from DataGenerator import DataGenerator
+
+dataGenerator = DataGenerator()
+
+labels = {
+    "paper" : 0,
+    "rock" : 1,
+    "scissors" : 2
+}
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 mp_drawing_styles = mp.solutions.drawing_styles
 
+result = []
 
-for idx, fieldFile in enumerate(imageFile):
-    imageFile = glob.glob(fieldFile + "/*")
+for i in glob.glob("./data/*"):
+    for label, fieldFile in enumerate(glob.glob(i + "/*")):
+        imageFile = glob.glob(fieldFile + "/*")
+        label = labels[fieldFile.split("\\")[-1]]
 
-    with mp_hands.Hands(max_num_hands=2, min_detection_confidence=0.5, min_tracking_confidence=0.5) as hands:
-        with mp_hands.Hands(
-                static_image_mode=True,
-                max_num_hands=2,
-                min_detection_confidence=0.5) as hands:
+        print(label)
 
-            for idx, file in enumerate(imageFile):
-                image = cv2.imread(file) # 이미지 불러오기
-                image = cv2.flip(image, 1)
-                image_RGB= cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                results = hands.process(image_RGB) # 관절 인식
+        with mp_hands.Hands(max_num_hands=2, min_detection_confidence=0.5, min_tracking_confidence=0.5) as hands:
+            with mp_hands.Hands(
+                    static_image_mode=True,
+                    max_num_hands=2,
+                    min_detection_confidence=0.5) as hands:
 
-                cv2.imshow("Hello", image)
-                cv2.waitKey(0)
+                for idx, file in enumerate(imageFile):
+                    image = cv2.imread(file)  # 이미지 불러오기
+                    image = cv2.flip(image, 1)
+                    image_RGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                    results = hands.process(image_RGB)  # 관절 인식
 
-                if not results.multi_hand_landmarks:
-                    continue
+                    cv2.imshow("Hello", image)
+                    # cv2.waitKey(0)
 
-                # image_height, image_width, _ = image.shape
-                annotated_image = image.copy()
-                for hand_landmarks in results.multi_hand_landmarks:
-                    mp_drawing.draw_landmarks(
-                        annotated_image,
-                        hand_landmarks,
-                        mp_hands.HAND_CONNECTIONS,
-                        mp_drawing_styles.get_default_hand_landmarks_style(),
-                        mp_drawing_styles.get_default_hand_connections_style())
+                    if not results.multi_hand_landmarks:
+                        continue
 
-                    print(hand_landmarks.landmark[0])
+                    # image_height, image_width, _ = image.shape
+                    annotated_image = image.copy()
+                    for hand_landmarks in results.multi_hand_landmarks:
+                        mp_drawing.draw_landmarks(
+                            annotated_image,
+                            hand_landmarks,
+                            mp_hands.HAND_CONNECTIONS,
+                            mp_drawing_styles.get_default_hand_landmarks_style(),
+                            mp_drawing_styles.get_default_hand_connections_style()
+                        )
 
-                cv2.imshow("Hello", annotated_image)
-                cv2.waitKey(0)
+                        degList = []
 
-                break
+                        for n, i in enumerate(dataGenerator.getFindDegList()):
+                            p1 = hand_landmarks.landmark[i[0]]
+                            p2 = hand_landmarks.landmark[i[1]]
+                            p3 = hand_landmarks.landmark[i[2]]
+
+                            deg = dataGenerator.getDeg(p1, p2, p3)
+
+                            degList.append(deg)
+
+                        degList.append(label)
+
+                        result.append(degList)
+
+
+                    cv2.imshow("Hello", annotated_image)
+                    if cv2.waitKey(5) & 0xFF == 27:  # 종료 버튼을 누르면 종료
+                        break
+
+
+result = np.array(result)
+print(result.shape)
+pd.DataFrame(result).to_csv("data/data.csv")
