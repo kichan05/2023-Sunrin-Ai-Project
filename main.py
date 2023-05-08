@@ -15,7 +15,7 @@ result = []
 
 
 with mp_hands.Hands(
-        max_num_hands=1,  # 인식할 손의 촤대 개수
+        max_num_hands=6,  # 인식할 손의 촤대 개수
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5) as hands:
     while cam.isOpened():  # 캠이 켜져있는 동안 무한 반복
@@ -57,7 +57,7 @@ with mp_hands.Hands(
                     x = int(p2.x * width)
                     y = int(p2.y * height)
 
-                    img = cv.putText(img, str(deg), (x, y), font, 1, (255, 255, 255), 1, cv.LINE_AA)
+                    # img = cv.putText(img, str(deg), (x, y), font, 1, (255, 255, 255), 1, cv.LINE_AA)
 
                     break
 

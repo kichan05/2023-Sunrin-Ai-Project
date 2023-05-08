@@ -15,6 +15,8 @@ labels = {
     "scissors" : 2
 }
 
+count = {}
+
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -25,8 +27,15 @@ for i in glob.glob("./data/*"):
     for label, fieldFile in enumerate(glob.glob(i + "/*")):
         imageFile = glob.glob(fieldFile + "/*")
         label = labels[fieldFile.split("\\")[-1]]
+        l = fieldFile.split("\\")[-1]
+        # print(label)
 
-        print(label)
+        if(l in count):
+            count[l] += len(imageFile)
+        else:
+            count[l] = len(imageFile)
+
+
 
         with mp_hands.Hands(max_num_hands=2, min_detection_confidence=0.5, min_tracking_confidence=0.5) as hands:
             with mp_hands.Hands(
@@ -67,16 +76,14 @@ for i in glob.glob("./data/*"):
                             deg = dataGenerator.getDeg(p1, p2, p3)
 
                             degList.append(deg)
-
                         degList.append(label)
-
                         result.append(degList)
-
 
                     cv2.imshow("Hello", annotated_image)
                     if cv2.waitKey(5) & 0xFF == 27:  # 종료 버튼을 누르면 종료
                         break
 
+print(count)
 
 result = np.array(result)
 print(result.shape)

@@ -6,8 +6,10 @@ class DataGenerator:
     def getFindDegList(self):
         return [
             [4, 3, 2],
-            [4, 3, 1],
+            [3, 2, 1],
             [2, 1, 0],
+
+            [8, 7, 6],
             [7, 6, 5],
             [6, 5, 0],
 
@@ -44,7 +46,7 @@ class DataGenerator:
 
         angle_deg = np.degrees(angle_rad)
 
-        return 180 - angle_deg
+        return min(angle_deg, 180 - angle_deg)
 
 
     def landmarkToNparray(self, landmark):
