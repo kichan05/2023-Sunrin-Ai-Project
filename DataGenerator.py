@@ -7,7 +7,6 @@ class DataGenerator:
         return [
             [4, 3, 2],
             [3, 2, 1],
-            [2, 1, 0],
 
             [8, 7, 6],
             [7, 6, 5],
@@ -15,20 +14,47 @@ class DataGenerator:
 
             [12, 11, 10],
             [11, 10, 9],
+
             [16, 15, 14],
             [15, 14, 13],
-            [20, 19, 18],
 
+            [20, 19, 18],
             [19, 18, 17],
             [18, 17, 0],
+
             [6, 5, 9],
             [10, 9, 5],
-            [10, 9, 13],
 
             [14, 13, 9],
-            [14, 13, 17],
             [18, 17, 13],
         ]
+
+    def getLabel(self, index):
+        return list(self.labels().keys())[index]
+
+    def labels(self):
+        return {
+            "paper": 0,
+            "rock": 1,
+            "scissors": 2
+        }
+
+    def imageGetDeg(self, hand_landmarks, label = None):
+        degList = []
+
+        for n, i in enumerate(self.getFindDegList()):
+            p1 = hand_landmarks.landmark[i[0]]
+            p2 = hand_landmarks.landmark[i[1]]
+            p3 = hand_landmarks.landmark[i[2]]
+
+            deg = self.getDeg(p1, p2, p3)
+
+            degList.append(deg)
+
+        if (label != None):
+            degList.append(label)
+
+        return degList
 
     def getDeg(self, p1, p2, p3):
         A = self.landmarkToNparray(p1)
