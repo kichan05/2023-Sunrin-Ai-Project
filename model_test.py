@@ -6,8 +6,7 @@ from tensorflow.keras.models import load_model
 
 
 dg = DataGenerator()
-model1 = load_model("./model1.hdf5")
-# model2 = load_model("./model2.hdf5")
+model2 = load_model("./model/model2.hdf5")
 
 cam = cv.VideoCapture(0)
 
@@ -47,7 +46,7 @@ with mp_hands.Hands(
 
                 deg = dg.imageGetDeg(hand_landmarks)
 
-                predict = model1.predict([deg])[0]
+                predict = model2.predict([deg], verbose=None)[0]
                 label = dg.getLabel(np.argmax(predict))
 
 
