@@ -4,7 +4,6 @@ import mediapipe as mp
 import numpy as np
 from tensorflow.keras.models import load_model
 
-
 dg = DataGenerator()
 model2 = load_model("./model/model2.hdf5")
 

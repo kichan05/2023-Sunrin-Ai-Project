@@ -51,6 +51,7 @@
 # 레파지토리 구조
 ```
 ┌
+│  main.py              // 메인 파일, 가위 바위 보 게임 진행하는 파일
 │  DataGenerator.py     // 이미지 데이터 분석을 위해 제작한 모듈
 │  image_dataset.py     // 이미지 데이터셋 분석에 사용한 파일
 │  MediaPipePractice.py // 구글 미디어 파이프 학습을 위해서 시용한 파일
