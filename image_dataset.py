@@ -21,7 +21,7 @@ result = []
 for i in glob.glob("./data/*"):
     for label, fieldFile in enumerate(glob.glob(i + "/*")):
         imageFile = glob.glob(fieldFile + "/*")
-        label = dataGenerator.labels[fieldFile.split("\\")[-1]]
+        label = dataGenerator.labels()[fieldFile.split("\\")[-1]]
         l = fieldFile.split("\\")[-1]
         # print(label)
 
