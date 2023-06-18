@@ -68,6 +68,7 @@
 │  image_dataset.py     // 이미지 데이터셋 분석에 사용한 파일
 │  MediaPipePractice.py // 구글 미디어 파이프 학습을 위해서 시용한 파일
 │  model_test.py        // 제작한 모델의 테스트를 위해서 사용한 파일
+│  model_train.ipynb    // 모델 학습에 사용한 파일
 │
 ├─data
 │  │  data.csv          // 이미지 데이터셋 분석 결과
