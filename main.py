@@ -1,3 +1,5 @@
+import time
+
 from DataGenerator import DataGenerator
 import cv2 as cv
 import mediapipe as mp
@@ -15,6 +17,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 mp_drawing_styles = mp.solutions.drawing_styles
 
+gameCount = 0
 
 def gesturesPredict(img):
     deg = dg.imageGetDeg(hand_landmarks)
@@ -38,7 +41,7 @@ def showTitle(text, color):
 
 
 def gameInit():
-    global startTime, userGestures, userLabel, aiGestures, aiLabel
+    global startTime, userGestures, userLabel, aiGestures, aiLabel, gameCount
 
     startTime = datetime.now()
     userGestures = None
@@ -46,6 +49,9 @@ def gameInit():
 
     aiGestures = random.randrange(0, 2)
     aiLabel = dg.getLabel(aiGestures)
+
+    gameCount += 1
+
 
 if __name__ == '__main__':
     with mp_hands.Hands(
@@ -85,7 +91,10 @@ if __name__ == '__main__':
                 timeDiff = currentTime - startTime
 
                 if(timeDiff.seconds < 1):
-                    showTitle("[START]", (0, 0, 0))
+                    if(gameCount == 1):
+                        showTitle("[START]", (0, 0, 0))
+                    else:
+                        showTitle("[RESTART]", (0, 255, 0))
 
                 if(timeDiff.seconds < 2):
                     pass
@@ -94,8 +103,15 @@ if __name__ == '__main__':
                     showTitle(str(7 - timeDiff.seconds), (0, 0, 0))
 
                 elif(timeDiff.seconds < 9):
-                    userGestures = gesturesPredict(img)
-                    userLabel = dg.getLabel(userGestures)
+                    try:
+                        userGestures = gesturesPredict(img)
+                        userLabel = dg.getLabel(userGestures)
+                    except:
+                        showTitle(f"[ERROR] None hand", (0, 0, 255))
+                        cv.imshow("캠", img)
+                        time.sleep(1)
+                        break
+
                     showTitle(f"Player : {userLabel}", (0, 0, 0))
 
                 elif(timeDiff.seconds < 10):
@@ -108,9 +124,6 @@ if __name__ == '__main__':
                         showTitle("WIN", (255, 0, 0))
                     else:
                         showTitle("DEFEAT", (0, 0, 255))
-
-                elif(timeDiff.seconds < 15):
-                    showTitle("[Game Restart]", (0, 0, 255))
 
                 else:
                     break
