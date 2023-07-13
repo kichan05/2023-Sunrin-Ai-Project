@@ -19,10 +19,12 @@ mp_drawing_styles = mp.solutions.drawing_styles
 
 gameCount = 0
 
-def gesturesPredict(img):
-    deg = dg.imageGetDeg(hand_landmarks)
+
+def gesturesPredict(landmark):
+    deg = dg.imageGetDeg(landmark)
     predict = model2.predict([deg], verbose=None)[0]
     return np.argmax(predict)
+
 
 def showTitle(text, color):
     global width, height, img
@@ -74,7 +76,7 @@ if __name__ == '__main__':
                 results = hands.process(img)
                 img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
 
-                if (results.multi_hand_landmarks):
+                if (results.multi_hand_landmarks != None):
                     hand_landmarks = results.multi_hand_landmarks[0]
                     mp_drawing.draw_landmarks(
                         img,
@@ -84,47 +86,45 @@ if __name__ == '__main__':
                         mp_drawing_styles.get_default_hand_connections_style()
                     )
 
-                    label = dg.getLabel(gesturesPredict(img))
-                    img = cv.putText(img, label, (0, 50), cv.FONT_HERSHEY_DUPLEX, 2, (0, 0, 255), 1, cv.LINE_AA)
+                    userGestures = gesturesPredict(hand_landmarks)
+                    userLabel = dg.getLabel(userGestures)
+                    img = cv.putText(img, userLabel, (0, 50), cv.FONT_HERSHEY_DUPLEX, 2, (0, 0, 255), 1, cv.LINE_AA)
+
 
                 currentTime = datetime.now()
                 timeDiff = currentTime - startTime
 
-                if(timeDiff.seconds < 1):
-                    if(gameCount == 1):
+                if (timeDiff.seconds < 1):
+                    if (gameCount == 1):
                         showTitle("[START]", (0, 0, 0))
                     else:
                         showTitle("[RESTART]", (0, 255, 0))
 
-                if(timeDiff.seconds < 2):
+                if (timeDiff.seconds < 2):
                     pass
 
-                elif(timeDiff.seconds < 7):
+                elif (timeDiff.seconds < 7):
                     showTitle(str(7 - timeDiff.seconds), (0, 0, 0))
 
-                elif(timeDiff.seconds < 9):
-                    try:
-                        userGestures = gesturesPredict(img)
-                        userLabel = dg.getLabel(userGestures)
-                    except:
+                elif (timeDiff.seconds < 9):
+                    if(hand_landmarks == None):
                         showTitle(f"[ERROR] None hand", (0, 0, 255))
                         cv.imshow("캠", img)
                         time.sleep(1)
-                        break
 
-                    showTitle(f"Player : {userLabel}", (0, 0, 0))
+                    else:
+                        showTitle(f"Player : {userLabel}", (0, 0, 0))
 
-                elif(timeDiff.seconds < 10):
+                elif (timeDiff.seconds < 10):
                     showTitle(f"Ai : {aiLabel}", (0, 0, 0))
 
-                elif(timeDiff.seconds < 14):
+                elif (timeDiff.seconds < 14):
                     if aiGestures == userGestures:
                         showTitle("DRAW", (0, 0, 0))
                     elif (aiGestures - userGestures) % 3 == 1:
                         showTitle("WIN", (255, 0, 0))
                     else:
                         showTitle("DEFEAT", (0, 0, 255))
-
                 else:
                     break
 
