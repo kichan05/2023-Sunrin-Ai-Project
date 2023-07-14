@@ -12,6 +12,9 @@ dg = DataGenerator()
 model2 = load_model("./model/model2.hdf5")
 
 cam = cv.VideoCapture(0)
+cv.namedWindow("webcam", cv.WND_PROP_FULLSCREEN)
+cv.setWindowProperty("webcam", cv.WND_PROP_FULLSCREEN, cv.WINDOW_FULLSCREEN)
+
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
@@ -24,7 +27,6 @@ def gesturesPredict(landmark):
     deg = dg.imageGetDeg(landmark)
     predict = model2.predict([deg], verbose=None)[0]
     return np.argmax(predict)
-
 
 def showTitle(text, color):
     global width, height, img
@@ -46,11 +48,9 @@ def gameInit():
     global startTime, userGestures, userLabel, aiGestures, aiLabel, gameCount
 
     startTime = datetime.now()
-    userGestures = None
-    userLabel = None
 
+    userGestures = None
     aiGestures = random.randrange(0, 2)
-    aiLabel = dg.getLabel(aiGestures)
 
     gameCount += 1
 
@@ -86,10 +86,11 @@ if __name__ == '__main__':
                         mp_drawing_styles.get_default_hand_connections_style()
                     )
 
-                    userGestures = gesturesPredict(hand_landmarks)
-                    userLabel = dg.getLabel(userGestures)
-                    img = cv.putText(img, userLabel, (0, 50), cv.FONT_HERSHEY_DUPLEX, 2, (0, 0, 255), 1, cv.LINE_AA)
-
+                    gestures = gesturesPredict(hand_landmarks)
+                    label = dg.getLabel(gestures)
+                    img = cv.putText(img, label, (0, 50), cv.FONT_HERSHEY_DUPLEX, 2, (0, 0, 255), 1, cv.LINE_AA)
+                else:
+                    gestures = None
 
                 currentTime = datetime.now()
                 timeDiff = currentTime - startTime
@@ -107,16 +108,16 @@ if __name__ == '__main__':
                     showTitle(str(7 - timeDiff.seconds), (0, 0, 0))
 
                 elif (timeDiff.seconds < 9):
-                    if(hand_landmarks == None):
-                        showTitle(f"[ERROR] None hand", (0, 0, 255))
-                        cv.imshow("캠", img)
-                        time.sleep(1)
+                    if(gestures == None): #사용자가 낸게 없는 경우
+                        break
 
-                    else:
-                        showTitle(f"Player : {userLabel}", (0, 0, 0))
+                    else: # 사용자가 낸게 있는 경우
+                        userGestures = gestures
+                        showTitle(f"Player : {dg.getLabel(userGestures)}", (0, 0, 0))
+
 
                 elif (timeDiff.seconds < 10):
-                    showTitle(f"Ai : {aiLabel}", (0, 0, 0))
+                    showTitle(f"Ai : {dg.getLabel(aiGestures)}", (0, 0, 0))
 
                 elif (timeDiff.seconds < 14):
                     if aiGestures == userGestures:
@@ -128,10 +129,7 @@ if __name__ == '__main__':
                 else:
                     break
 
-                cv.imshow("캠", img)
+                cv.imshow("webcam", img)
 
-                if cv.waitKey(5) & 0xFF == 27:
-                    break
-
-            if cv.waitKey(5) & 0xFF == 27:
-                break
+                if cv.waitKey(1) & 0xFF == ord('q'): # q누르면 종료
+                    exit(0)
