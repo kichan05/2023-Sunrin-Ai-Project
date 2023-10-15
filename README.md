@@ -85,3 +85,17 @@
 │      model2.hdf5      // 모델 2 (정확도 : 99.20%)
 └─
 ```
+
+# 실행 방법
+1. 레포지포티를 클론해줍니다.
+    ```bash
+    git clone https://github.com/kichan05/2023-Sunrin-Ai-Project.git
+    ```
+2. 라이브러리를 설치해줍니다.
+    ```bash
+    pip install -r requirements.txt
+    ```
+3. main.py을 실행합니다.
+    ```bash
+   python main.py
+    ```
