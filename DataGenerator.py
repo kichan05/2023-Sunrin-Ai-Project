@@ -34,9 +34,9 @@ class DataGenerator:
 
     def labels(self):
         return {
-            "paper": 0,
-            "rock": 1,
-            "scissors": 2
+            "보자기": 0,
+            "바위": 1,
+            "가위": 2
         }
 
     def imageGetDeg(self, hand_landmarks, label = None):

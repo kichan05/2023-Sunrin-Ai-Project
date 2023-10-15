@@ -52,7 +52,7 @@ with mp_hands.Hands(
 
                     deg = dataGenerator.getDeg(p1, p2, p3)
 
-                    font = cv.FONT_HERSHEY_PLAIN
+                    font_title = cv.FONT_HERSHEY_PLAIN
 
                     x = int(p2.x * width)
                     y = int(p2.y * height)

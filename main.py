@@ -5,8 +5,13 @@ import cv2 as cv
 import mediapipe as mp
 import numpy as np
 from tensorflow.keras.models import load_model
+from PIL import ImageFont, Image, ImageDraw
 import random
 from datetime import datetime
+
+import GameUi
+
+GameUi.show_logo()
 
 dg = DataGenerator()
 model2 = load_model("./model/model2.hdf5")
@@ -22,27 +27,10 @@ mp_drawing_styles = mp.solutions.drawing_styles
 
 gameCount = 0
 
-
 def gesturesPredict(landmark):
     deg = dg.imageGetDeg(landmark)
     predict = model2.predict([deg], verbose=None)[0]
     return np.argmax(predict)
-
-def showTitle(text, color):
-    global width, height, img
-    text_size, _ = cv.getTextSize(text, cv.FONT_HERSHEY_DUPLEX, 2, cv.LINE_AA)
-
-    box_width = text_size[0] + 10
-    box_height = text_size[1] + 10
-
-    box_x = (img.shape[1] - box_width) // 2
-    box_y = (img.shape[0] - box_height) // 2
-    cv.rectangle(img, (box_x, box_y), (box_x + box_width, box_y + box_height), (255, 255, 255), -1)
-
-    text_x = (width - text_size[0]) // 2
-    text_y = (height + text_size[1]) // 2
-    cv.putText(img, text, (text_x, text_y), cv.FONT_HERSHEY_DUPLEX, 2, color, 1, cv.LINE_AA)
-
 
 def gameInit():
     global startTime, userGestures, userLabel, aiGestures, aiLabel, gameCount
@@ -72,9 +60,8 @@ if __name__ == '__main__':
                     continue
 
                 img = cv.flip(img, 1)
-                img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-                results = hands.process(img)
-                img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
+                img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+                results = hands.process(img_rgb)
 
                 if (results.multi_hand_landmarks != None):
                     hand_landmarks = results.multi_hand_landmarks[0]
@@ -88,7 +75,7 @@ if __name__ == '__main__':
 
                     gestures = gesturesPredict(hand_landmarks)
                     label = dg.getLabel(gestures)
-                    img = cv.putText(img, label, (0, 50), cv.FONT_HERSHEY_DUPLEX, 2, (0, 0, 255), 1, cv.LINE_AA)
+                    img = GameUi.show_header_pil(f"현재 손동작 : {label}", img)
                 else:
                     gestures = None
 
@@ -97,39 +84,44 @@ if __name__ == '__main__':
 
                 if (timeDiff.seconds < 1):
                     if (gameCount == 1):
-                        showTitle("[START]", (0, 0, 0))
+                        img = GameUi.show_title_pil("[시작]", (0, 0, 0), img)
                     else:
-                        showTitle("[RESTART]", (0, 255, 0))
+                        img = GameUi.show_title_pil("[다시 시작]", (0, 255, 0), img)
 
-                if (timeDiff.seconds < 2):
-                    pass
+                elif(timeDiff.seconds < 3):
+                    img = GameUi.show_title_pil("안 내 면", (0, 0, 0), img)
 
-                elif (timeDiff.seconds < 7):
-                    showTitle(str(7 - timeDiff.seconds), (0, 0, 0))
+                elif(timeDiff.seconds < 5):
+                    img = GameUi.show_title_pil("진다", (0, 0, 0), img)
 
-                elif (timeDiff.seconds < 9):
+                elif(timeDiff.seconds < 7):
+                    img = GameUi.show_title_pil(f"가위 바위 보!!!!!!!", (0, 0, 0), img)
+
+                elif (timeDiff.seconds < 10):
                     if(gestures == None): #사용자가 낸게 없는 경우
                         break
 
                     else: # 사용자가 낸게 있는 경우
-                        userGestures = gestures
-                        showTitle(f"Player : {dg.getLabel(userGestures)}", (0, 0, 0))
+                        if(userGestures == None):
+                            userGestures = gestures
 
+                        img = GameUi.show_title_pil(f"사용자 : {dg.getLabel(userGestures)}", (0, 255, 0), img)
 
-                elif (timeDiff.seconds < 10):
-                    showTitle(f"Ai : {dg.getLabel(aiGestures)}", (0, 0, 0))
+                elif (timeDiff.seconds < 13):
+                    img = GameUi.show_title_pil(f"인공지능 : {dg.getLabel(aiGestures)}", (0, 255, 0), img)
 
-                elif (timeDiff.seconds < 14):
+                elif (timeDiff.seconds < 16):
                     if aiGestures == userGestures:
-                        showTitle("DRAW", (0, 0, 0))
+                        img = GameUi.show_title_pil("무승부", (0, 0, 0), img)
                     elif (aiGestures - userGestures) % 3 == 1:
-                        showTitle("WIN", (255, 0, 0))
+                        img = GameUi.show_title_pil("승리!!!", (255, 0, 0), img)
                     else:
-                        showTitle("DEFEAT", (0, 0, 255))
+                        img = GameUi.show_title_pil("패배", (0, 0, 255), img)
                 else:
                     break
 
                 cv.imshow("webcam", img)
 
-                if cv.waitKey(1) & 0xFF == ord('q'): # q누르면 종료
+                if cv.waitKey(1) & 0xff == 27: # esc키 누르면 종료
+                    print("종료")
                     exit(0)
