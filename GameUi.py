@@ -51,6 +51,7 @@ def show_title_pil(text, color, img_):
     return np.array(img_pil)
 
 def show_header_pil(text, img_):
+    BOX_PADDING = 5
     font_header = ImageFont.truetype("./font/Pretendard-Regular.otf", 30)
 
     img_np = np.array(img_)
@@ -58,6 +59,17 @@ def show_header_pil(text, img_):
 
     draw = ImageDraw.Draw(img_pil) # 이미지에 글씨를 쓸 객체
 
+    x1, y1, x2, y2 = draw.textbbox((5, 5), text, font_header)
+    size_width, size_height = x2 - x1, y2 - y1
+
+    box_width = size_width + 10
+    box_height = size_height + 10
+
+
+    draw.rectangle(
+        [8, 10, BOX_PADDING + box_width, BOX_PADDING + box_height],
+        (255, 255, 255)
+    )
     draw.text((10, 10), text, (0, 0, 255), font_header)
 
     return np.array(img_pil)

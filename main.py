@@ -78,6 +78,7 @@ if __name__ == '__main__':
                     img = GameUi.show_header_pil(f"현재 손동작 : {label}", img)
                 else:
                     gestures = None
+                    img = GameUi.show_header_pil(f"현재 손동작 : 없음", img)
 
                 currentTime = datetime.now()
                 timeDiff = currentTime - startTime
